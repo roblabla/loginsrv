@@ -26,6 +26,8 @@ func init() {
 	httpcaddyfile.RegisterDirective("login", parseCaddyfile)
 }
 
+// CaddyModule returns a definition of the module, and is the only required
+// method for the Caddy Module interface.
 func (CaddyHandler) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.loginsrv",
@@ -33,14 +35,18 @@ func (CaddyHandler) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
+// Duration is a wrapper around time.Duration to make JSON marshaling work
+// correctly with JWT.
 type Duration struct {
 	time.Duration
 }
 
+// MarshalJSON turns the duration into a json byte array.
 func (d Duration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.String())
 }
 
+// UnmarshalJSON turns the byte array into a Duration.
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var v interface{}
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -62,6 +68,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
+// LoginConfigSimple holds all of our possible config arguments.
 type LoginConfigSimple struct {
 	JwtSecret              string        `json:"jwt_secret,omitempty"`
 	JwtSecretFile          string        `json:"jwt_secret_file,omitempty"`
@@ -89,75 +96,78 @@ type LoginConfigSimple struct {
 	UserEndpointTimeout    Duration      `json:"user_endpoint_timeout,omitempty"`
 }
 
+// UnmarshalJSON turns a byte array into a configured CaddyHandler.
 func (c *CaddyHandler) UnmarshalJSON(b []byte) error {
 	c.config = login.DefaultConfig()
-	config_simple := LoginConfigSimple{}
+	configSimple := LoginConfigSimple{}
 
-	err := json.Unmarshal(b, &config_simple)
+	err := json.Unmarshal(b, &configSimple)
 	if err != nil {
 		return err
 	}
 
-	c.config.JwtSecret = config_simple.JwtSecret
-	c.config.JwtSecretFile = config_simple.JwtSecretFile
-	c.config.JwtAlgo = config_simple.JwtAlgo
-	c.config.JwtExpiry = config_simple.JwtExpiry.Duration
-	c.config.JwtRefreshes = config_simple.JwtRefreshes
-	c.config.SuccessURL = config_simple.SuccessURL
-	c.config.Redirect = config_simple.Redirect
-	c.config.RedirectQueryParameter = config_simple.RedirectQueryParameter
-	c.config.RedirectCheckReferer = config_simple.RedirectCheckReferer
-	c.config.RedirectHostFile = config_simple.RedirectHostFile
-	c.config.LogoutURL = config_simple.LogoutURL
-	c.config.Template = config_simple.Template
-	c.config.LoginPath = config_simple.LoginPath
-	c.config.CookieName = config_simple.CookieName
-	c.config.CookieExpiry = config_simple.CookieExpiry.Duration
-	c.config.CookieDomain = config_simple.CookieDomain
-	c.config.CookieHTTPOnly = config_simple.CookieHTTPOnly
-	c.config.CookieSecure = config_simple.CookieSecure
-	c.config.Backends = config_simple.Backends
-	c.config.Oauth = config_simple.Oauth
-	c.config.UserFile = config_simple.UserFile
-	c.config.UserEndpoint = config_simple.UserEndpoint
-	c.config.UserEndpointToken = config_simple.UserEndpointToken
-	c.config.UserEndpointTimeout = config_simple.UserEndpointTimeout.Duration
+	c.config.JwtSecret = configSimple.JwtSecret
+	c.config.JwtSecretFile = configSimple.JwtSecretFile
+	c.config.JwtAlgo = configSimple.JwtAlgo
+	c.config.JwtExpiry = configSimple.JwtExpiry.Duration
+	c.config.JwtRefreshes = configSimple.JwtRefreshes
+	c.config.SuccessURL = configSimple.SuccessURL
+	c.config.Redirect = configSimple.Redirect
+	c.config.RedirectQueryParameter = configSimple.RedirectQueryParameter
+	c.config.RedirectCheckReferer = configSimple.RedirectCheckReferer
+	c.config.RedirectHostFile = configSimple.RedirectHostFile
+	c.config.LogoutURL = configSimple.LogoutURL
+	c.config.Template = configSimple.Template
+	c.config.LoginPath = configSimple.LoginPath
+	c.config.CookieName = configSimple.CookieName
+	c.config.CookieExpiry = configSimple.CookieExpiry.Duration
+	c.config.CookieDomain = configSimple.CookieDomain
+	c.config.CookieHTTPOnly = configSimple.CookieHTTPOnly
+	c.config.CookieSecure = configSimple.CookieSecure
+	c.config.Backends = configSimple.Backends
+	c.config.Oauth = configSimple.Oauth
+	c.config.UserFile = configSimple.UserFile
+	c.config.UserEndpoint = configSimple.UserEndpoint
+	c.config.UserEndpointToken = configSimple.UserEndpointToken
+	c.config.UserEndpointTimeout = configSimple.UserEndpointTimeout.Duration
 
 	return nil
 }
 
+// MarshalJSON turns a CaddyHandler into a json byte array.
 func (c *CaddyHandler) MarshalJSON() ([]byte, error) {
-	config_simple := LoginConfigSimple{}
+	configSimple := LoginConfigSimple{}
 
-	config_simple.JwtSecret = c.config.JwtSecret
-	config_simple.JwtSecretFile = c.config.JwtSecretFile
-	config_simple.JwtAlgo = c.config.JwtAlgo
-	config_simple.JwtExpiry = Duration{Duration: c.config.JwtExpiry}
-	config_simple.JwtRefreshes = c.config.JwtRefreshes
-	config_simple.SuccessURL = c.config.SuccessURL
-	config_simple.Redirect = c.config.Redirect
-	config_simple.RedirectQueryParameter = c.config.RedirectQueryParameter
-	config_simple.RedirectCheckReferer = c.config.RedirectCheckReferer
-	config_simple.RedirectHostFile = c.config.RedirectHostFile
-	config_simple.LogoutURL = c.config.LogoutURL
-	config_simple.Template = c.config.Template
-	config_simple.LoginPath = c.config.LoginPath
-	config_simple.CookieName = c.config.CookieName
-	config_simple.CookieExpiry = Duration{Duration: c.config.CookieExpiry}
-	config_simple.CookieDomain = c.config.CookieDomain
-	config_simple.CookieHTTPOnly = c.config.CookieHTTPOnly
-	config_simple.CookieSecure = c.config.CookieSecure
-	config_simple.Backends = c.config.Backends
-	config_simple.Oauth = c.config.Oauth
-	config_simple.UserFile = c.config.UserFile
-	config_simple.UserEndpoint = c.config.UserEndpoint
-	config_simple.UserEndpointToken = c.config.UserEndpointToken
-	config_simple.UserEndpointTimeout = Duration{Duration: c.config.UserEndpointTimeout}
+	configSimple.JwtSecret = c.config.JwtSecret
+	configSimple.JwtSecretFile = c.config.JwtSecretFile
+	configSimple.JwtAlgo = c.config.JwtAlgo
+	configSimple.JwtExpiry = Duration{Duration: c.config.JwtExpiry}
+	configSimple.JwtRefreshes = c.config.JwtRefreshes
+	configSimple.SuccessURL = c.config.SuccessURL
+	configSimple.Redirect = c.config.Redirect
+	configSimple.RedirectQueryParameter = c.config.RedirectQueryParameter
+	configSimple.RedirectCheckReferer = c.config.RedirectCheckReferer
+	configSimple.RedirectHostFile = c.config.RedirectHostFile
+	configSimple.LogoutURL = c.config.LogoutURL
+	configSimple.Template = c.config.Template
+	configSimple.LoginPath = c.config.LoginPath
+	configSimple.CookieName = c.config.CookieName
+	configSimple.CookieExpiry = Duration{Duration: c.config.CookieExpiry}
+	configSimple.CookieDomain = c.config.CookieDomain
+	configSimple.CookieHTTPOnly = c.config.CookieHTTPOnly
+	configSimple.CookieSecure = c.config.CookieSecure
+	configSimple.Backends = c.config.Backends
+	configSimple.Oauth = c.config.Oauth
+	configSimple.UserFile = c.config.UserFile
+	configSimple.UserEndpoint = c.config.UserEndpoint
+	configSimple.UserEndpointToken = c.config.UserEndpointToken
+	configSimple.UserEndpointTimeout = Duration{Duration: c.config.UserEndpointTimeout}
 
-	data, err := json.Marshal(config_simple)
+	data, err := json.Marshal(configSimple)
 	return data, err
 }
 
+// Provision pulls the config out of context and sets it on the handler.
 func (c *CaddyHandler) Provision(context caddy.Context) error {
 	loginHandler, err := login.NewHandler(c.config)
 	if err != nil {
