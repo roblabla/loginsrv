@@ -2,10 +2,9 @@ package caddy2
 
 import (
 	"encoding/json"
-	"flag"
 	"errors"
+	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,10 +22,7 @@ import (
 )
 
 func init() {
-	err := caddy.RegisterModule(CaddyHandler{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	caddy.RegisterModule(CaddyHandler{})
 	httpcaddyfile.RegisterDirective("login", parseCaddyfile)
 }
 
@@ -195,7 +191,7 @@ func parseCaddyfile(c httpcaddyfile.Helper) ([]httpcaddyfile.ConfigValue, error)
 			config.Template = filepath.Join(c.File(), config.Template)
 		}
 
-		handler := CaddyHandler { config: config }
+		handler := CaddyHandler{config: config}
 		return c.NewRoute(nil, &handler), nil
 	}
 	return nil, c.ArgErr()
