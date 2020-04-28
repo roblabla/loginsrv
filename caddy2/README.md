@@ -1,14 +1,17 @@
 # loginsrv Caddy 2 middleware
 
 Login plugin for Caddy 2, based on [tarent/loginsrv](https://github.com/tarent/loginsrv).
+
 The login is checked against a backend and then returned as a JWT token.
+
 This middleware is designed to play together with the [caddy-jwt](https://github.com/roblabla/caddy-jwt) plugin.
 
 For a full documentation of loginsrv configuration and usage, visit the [loginsrv README.md](https://github.com/tarent/loginsrv).
 
-A small demo can be found in the [./demo](https://github.com/tarent/loginsrv/tree/master/caddy/demo) directory.
+A small demo can be found in the [./demo](https://github.com/tarent/loginsrv/tree/master/caddy2/demo) directory.
 
 ## Configuration of `JWT_SECRET`
+
 The jwt secret is taken from the environment variable `JWT_SECRET` if this variable is set.
 If a secret was configured in the directive config, this has higher priority and will be used over the environment variable in the case,
 that both are set. This way, it is also possible to configure different secrets for multiple hosts. If no secret was set at all,
@@ -23,11 +26,14 @@ and a custom one in the same caddyfile. If you want to have better control, of t
 you should configure the jwt behaviour in caddy-jwt with the `secret` or `publickey` directive.
 
 ## Cookie Name
+
 You can configure the cookie name by `cookie_name`. By default loginsrv and http.jwt use the same cookie name for the JWT token.
 If you don't use the default, set related param `token_source cookie my_cookie_name` in http.jwt.
 
 ### Basic configuration
+
 Provide a login resource under /login, for user bob with password secret:
+
 ```
 login {
     simple bob=secret
@@ -35,6 +41,7 @@ login {
 ```
 
 ### Full configuration example
+
 ```
 login {
     success_url /after/login
@@ -49,6 +56,7 @@ login {
 ```
 
 ### Example caddyfile
+
 ```
 127.0.0.1
 
@@ -65,6 +73,7 @@ login {
 ```
 
 ### Example caddyfile with dynamic redirects
+
 ```
 127.0.0.1
 
@@ -122,4 +131,5 @@ login {
    * Appear to be authenticated if you navigate to `/login`
 
 Possible solution:
-Confirm that `cookie-name` in http.login and `token_source cookie cookie_name` in http.jwt are identical
+
+ * Confirm that `cookie-name` in http.login and `token_source cookie cookie_name` in http.jwt are identical
